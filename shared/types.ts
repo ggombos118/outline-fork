@@ -151,6 +151,7 @@ export enum IntegrationService {
   Linear = "linear",
   Figma = "figma",
   Notion = "notion",
+  MicrosoftTeams = "microsoft-teams",
 }
 
 export type ImportableIntegrationService = Extract<
@@ -253,7 +254,7 @@ export type IntegrationSettings<T> = T extends IntegrationType.Embed
   : T extends IntegrationType.Analytics
     ? { measurementId: string; instanceUrl?: string; scriptName?: string }
     : T extends IntegrationType.Post
-      ? { url: string; channel: string; channelId: string }
+      ? { url: string; channel: string; channelId?: string }
       : T extends IntegrationType.Command
         ? { serviceTeamId: string }
         : T extends IntegrationType.Import
@@ -263,6 +264,7 @@ export type IntegrationSettings<T> = T extends IntegrationType.Embed
           : T extends IntegrationType.LinkedAccount
             ? {
                 slack?: { serviceTeamId: string; serviceUserId: string };
+                teams?: { serviceTeamId: string; serviceUserId: string };
                 figma?: {
                   account: {
                     id: string;

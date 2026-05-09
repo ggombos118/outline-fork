@@ -1,0 +1,6 @@
+{
+  "id": "teams",
+  "name": "Microsoft Teams",
+  "description": "Microsoft Teams integration for notifications and document search.",
+  "priority": 10
+}
