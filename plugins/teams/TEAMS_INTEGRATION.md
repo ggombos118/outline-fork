@@ -6,18 +6,6 @@ This document describes the Microsoft Teams integration for Outline, covering al
 
 ## Changes to Existing Files
 
-### `server/routes/api/index.ts`
-
-Added `includeUnparsed: true` to the `koa-body` bodyParser configuration so that `ctx.request.rawBody` is populated for all API requests. This is required for HMAC-SHA256 verification of Teams Outgoing Webhook requests: Teams signs the exact raw request bytes, and any re-serialisation of the parsed body may produce a different byte sequence.
-
-```typescript
-bodyParser({
-  multipart: true,
-  includeUnparsed: true,
-  ...
-})
-```
-
 ### `app/utils/PluginManager.ts`
 
 Two fixes required to make the Teams plugin appear in the Integrations settings page:
@@ -83,7 +71,7 @@ Three targeted changes:
 
 | File | Description |
 |---|---|
-| `plugins/teams/server/api/hooks.ts` | Two routes: `POST teams.post` (create webhook integration) and `POST teams.hook` (receive Outgoing Webhook commands with HMAC verification). The `teams.hook` handler strips HTML tags and entities from the incoming message text before searching, and falls back to `conversation.tenantId` when the top-level `tenantId` field is absent or null (which Teams sometimes omits in channel contexts) |
+| `plugins/teams/server/api/hooks.ts` | Two routes: `POST teams.post` (create webhook integration) and `POST teams.hook` (receive Outgoing Webhook commands with HMAC verification). The HMAC is verified using `JSON.stringify(ctx.request.body)` — Teams sends standard JSON and the re-serialised body matches the signed bytes in practice. The `teams.hook` handler strips HTML tags and entities from the incoming message text before searching, and falls back to `conversation.tenantId` when the top-level `tenantId` field is absent or null (which Teams sometimes omits in channel contexts) |
 | `plugins/teams/server/api/schema.ts` | Zod validation schemas for both routes (`TeamsPostSchema`, `TeamsHookSchema`). Fields nested inside `from` and `conversation` use `.nullish()` instead of `.optional()` because Teams sends explicit `null` values for absent fields |
 
 ### Server — Authentication
